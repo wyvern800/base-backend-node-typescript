@@ -8,13 +8,18 @@
     "dev:server": "ts-node-dev --inspect --transpileOnly --ignore-watch node_modules src/server.ts"
   },
   "dependencies": {
+    "crypto": "^1.0.1",
+    "dotenv": "^16.3.1",
     "express": "^4.17.1",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.11.3",
     "reflect-metadata": "^0.1.13",
     "typeorm": "^0.3.16"
   },
   "devDependencies": {
-    "@types/express": "^4.17.6",
-    "@types/node": "^20.2.5",
+    "@types/express": "^4.17.20",
+    "@types/jsonwebtoken": "^9.0.4",
+    "@types/node": "^20.8.9",
     "@typescript-eslint/eslint-plugin": "^2.30.0",
     "@typescript-eslint/parser": "^2.30.0",
     "eslint": "^6.8.0",

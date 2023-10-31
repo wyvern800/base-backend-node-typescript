@@ -1,13 +1,32 @@
 import express from 'express';
-import routes from './routes';
 import 'reflect-metadata';
+import AppDataSource from './data-source';
+import { Controller } from './types/controller';
+
+import endPoints from './endpoints';
 
 const app = express();
 
+const PORT = 3333;
+
 app.use(express.json());
 
-app.use(routes);
+app.use(express.urlencoded({ extended: true }));
 
-app.listen(3333, () => {
-  console.log('Server started on port 3333');
+// Construct all the routes
+endPoints.forEach((endPoint: Controller): void => {
+  app.use(endPoint.endpoint, endPoint.controller);
+});
+
+// to initialize initial connection with the database, register all entities
+// and "synchronize" database schema, call "initialize()" method of a newly created database
+// once in your application bootstrap
+AppDataSource.initialize()
+  .then(() => {
+    // here you can start to work with your database
+  })
+  .catch(error => console.error(error));
+
+app.listen(PORT, () => {
+  console.log(`Server started on port ${PORT}`);
 });
