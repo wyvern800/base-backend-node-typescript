@@ -12,7 +12,7 @@ routes.get('/', (request: Request, response: Response) => {
 
 routes.post(
   '/',
-  async (request: Request, response: Response): Promise<any> => {
+  async (request: Request, response: Response): Promise<unknown> => {
     const { username, password } = request.body;
 
     const user: DeepPartial<User> = {

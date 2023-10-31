@@ -1,9 +1,11 @@
 import express from 'express';
+import morgan from 'morgan';
 import 'reflect-metadata';
 import AppDataSource from './data-source';
 import { Controller } from './types/controller';
-
 import endPoints from './endpoints';
+import GenericError from './utils/errorTypes/generic';
+import errorHandler from './middlewares/ErrorHandler';
 
 const app = express();
 
@@ -12,6 +14,10 @@ const PORT = 3333;
 app.use(express.json());
 
 app.use(express.urlencoded({ extended: true }));
+
+app.use(morgan('dev'));
+
+app.use(errorHandler);
 
 // Construct all the routes
 endPoints.forEach((endPoint: Controller): void => {
@@ -25,7 +31,9 @@ AppDataSource.initialize()
   .then(() => {
     // here you can start to work with your database
   })
-  .catch(error => console.error(error));
+  .catch((_: any) => {
+    throw new GenericError('Something unexpected happened');
+  });
 
 app.listen(PORT, () => {
   console.log(`Server started on port ${PORT}`);

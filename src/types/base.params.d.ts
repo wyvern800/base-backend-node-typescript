@@ -1,3 +1,3 @@
 export type IDataParams = {
-  [key: string]: any;
+  [key: string]: unknown;
 };
