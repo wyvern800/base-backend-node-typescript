@@ -1,11 +1,13 @@
 import express from 'express';
 import morgan from 'morgan';
 import 'reflect-metadata';
+import cors from 'cors';
 import AppDataSource from './data-source';
 import { Controller } from './types/controller';
 import endPoints from './endpoints';
 import GenericError from './utils/errorTypes/generic';
 import errorHandler from './middlewares/ErrorHandler';
+import Swagger from './utils/swagger';
 
 const app = express();
 
@@ -18,6 +20,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
 app.use(errorHandler);
+
+// Enable All CORS Requests
+app.use(cors());
+
+// Initializes the swagger documentation
+new Swagger(app, endPoints).init();
 
 // Construct all the routes
 endPoints.forEach((endPoint: Controller): void => {
