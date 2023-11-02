@@ -6,6 +6,20 @@ import { hashPassword } from '../../utils/encryption';
 const userRepository = AppDataSource.getRepository(User);
 
 /**
+ * Checks if user exists
+ *
+ * @param { string } username The user
+ * @returns { boolean } True if user exists in database
+ */
+export const checkDuplicates = async (
+  username: string,
+): Promise<User | null> => {
+  return userRepository.findOne({
+    where: { username },
+  });
+};
+
+/**
  * Gets the user by id
  *
  * @param { number } id The username

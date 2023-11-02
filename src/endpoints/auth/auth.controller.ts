@@ -1,8 +1,13 @@
+/* eslint-disable consistent-return */
 import { Router, Response, Request } from 'express';
 import jwt from 'jsonwebtoken';
+import { validationResult } from 'express-validator';
 import { verifyPassword } from '../../utils/encryption';
 import * as repository from '../users/users.repository';
 import DatabaseError from '../../utils/errorTypes/database';
+import * as validator from './auth.validator';
+
+import BaseResponse from '../../utils/response';
 
 require('dotenv').config();
 
@@ -83,30 +88,42 @@ const routes = Router();
  *               example: "Failed to fetch data from the database."
  *               description: Error message indicating the reason for failure.
  */
-routes.post('/login', async (req: Request, res: Response) => {
-  const { username, password } = req.body;
+routes.post(
+  '/login',
+  validator.authenticate,
+  async (req: Request, res: Response): Promise<unknown> => {
+    const { username, password } = req.body;
 
-  try {
-    const user = await repository.getUserByUsername(username);
+    const errors = validationResult(req);
 
-    if (user) {
-      if (user.role < 2) {
-        res.status(401).json({ error: 'user has no privilleges' });
-        return;
-      }
-      if (verifyPassword(password, user.password)) {
-        const accessToken = jwt.sign(password, process.env.SECRET_KEY || '');
-
-        res.status(200).json({ accessToken });
-      } else {
-        res.status(401).json({ error: 'invalid grand: bad credentials' });
-      }
-    } else {
-      res.status(400).json({ error: 'user not found' });
+    if (!errors.isEmpty()) {
+      return BaseResponse.error(res, { errors: errors.array() });
     }
-  } catch (err) {
-    throw new DatabaseError('Failed to fetch data from the database.');
-  }
-});
+
+    try {
+      const user = await repository.getUserByUsername(username);
+
+      if (user) {
+        if (user.role < 2) {
+          res.status(401).json({ error: 'user has no privilleges' });
+        } else if (verifyPassword(password, user.password)) {
+          const accessToken = jwt.sign(password, process.env.SECRET_KEY || '');
+
+          return BaseResponse.success(res, { accessToken });
+        } else {
+          return BaseResponse.unauthorized(res, {
+            error: 'invalid grand: bad credentials',
+          });
+        }
+      } else {
+        return BaseResponse.error(res, {
+          error: 'user not found',
+        });
+      }
+    } catch (err) {
+      throw new DatabaseError('Failed to fetch data from the database.');
+    }
+  },
+);
 
 export default routes;
