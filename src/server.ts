@@ -10,6 +10,8 @@ import errorHandler from './middlewares/ErrorHandler';
 import Swagger from './utils/swagger';
 import ResponseBase from './utils/response';
 
+require('dotenv').config();
+
 const app = express();
 
 const PORT = 3333;
@@ -55,5 +57,5 @@ AppDataSource.initialize()
   });
 
 app.listen(PORT, () => {
-  console.log(`Server started on port ${PORT}`);
+  console.log(`Server started to http://localhost:${process.env.APP_PORT}/`);
 });

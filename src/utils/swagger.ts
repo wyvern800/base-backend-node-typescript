@@ -70,6 +70,9 @@ export default class Swagger extends SwaggerDocumentationBase {
     const { app, serve, setup } = this.swaggerInstance;
     if (app && serve && setup) {
       app.use('/swagger', serve, setup);
+      console.log(
+        `Swagger opened to http://localhost:${process.env.APP_PORT}/swagger`,
+      );
     }
   }
 }
