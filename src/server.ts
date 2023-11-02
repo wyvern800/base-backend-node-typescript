@@ -14,8 +14,6 @@ require('dotenv').config();
 
 const app = express();
 
-const PORT = 3333;
-
 app.use(express.json());
 
 app.use(express.urlencoded({ extended: true }));
@@ -56,6 +54,6 @@ AppDataSource.initialize()
     throw new GenericError('Something unexpected happened');
   });
 
-app.listen(PORT, () => {
+app.listen(process.env.APP_PORT, () => {
   console.log(`Server started to http://localhost:${process.env.APP_PORT}/`);
 });
