@@ -107,7 +107,13 @@ routes.post(
         if (user.role < 2) {
           res.status(401).json({ error: 'user has no privilleges' });
         } else if (verifyPassword(password, user.password)) {
-          const accessToken = jwt.sign(password, process.env.SECRET_KEY || '');
+          const accessToken = jwt.sign(
+            { userId: user.id },
+            process.env.SECRET_KEY || '',
+            {
+              expiresIn: '1h',
+            },
+          );
 
           return BaseResponse.success(res, { accessToken });
         } else {
