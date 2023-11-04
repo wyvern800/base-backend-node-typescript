@@ -192,32 +192,36 @@ routes.post(
  *               example: "Failed to verify access token."
  *               description: Error message indicating the reason for failure.
  */
-routes.post('/permissions', async (request: Request, response: Response) => {
-  const { acessToken } = request.body;
+routes.post(
+  '/permissions',
+  validator.permissions,
+  async (request: Request, response: Response) => {
+    const { acessToken } = request.body;
 
-  try {
-    // Try to verify the token
-    jwt.verify(
-      acessToken,
-      process.env.SECRET_KEY || '',
-      async (err: unknown, payload: any) => {
-        if (err) {
-          return BaseResponse.unauthorized(response, {
-            error: 'Invalid token.',
-          });
-        }
-        const user = await repository.getUserById(payload.userId);
+    try {
+      // Try to verify the token
+      jwt.verify(
+        acessToken,
+        process.env.SECRET_KEY || '',
+        async (err: unknown, payload: any) => {
+          if (err) {
+            return BaseResponse.unauthorized(response, {
+              error: 'Invalid token.',
+            });
+          }
+          const user = await repository.getUserById(payload.userId);
 
-        if (user) {
-          const hasPermission = user.role >= 2;
-          BaseResponse.success(response, { hasPermission });
-        }
-        return false;
-      },
-    );
-  } catch (err) {
-    BaseResponse.error(response, { error: 'Something unexpected happened' });
-  }
-});
+          if (user) {
+            const hasPermission = user.role >= 2;
+            BaseResponse.success(response, { hasPermission });
+          }
+          return false;
+        },
+      );
+    } catch (err) {
+      BaseResponse.error(response, { error: 'Something unexpected happened' });
+    }
+  },
+);
 
 export default routes;
