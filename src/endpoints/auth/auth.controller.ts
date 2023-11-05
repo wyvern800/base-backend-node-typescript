@@ -1,13 +1,15 @@
 /* eslint-disable consistent-return */
 import { Router, Response, Request } from 'express';
 import jwt from 'jsonwebtoken';
-import { validationResult } from 'express-validator';
 import { verifyPassword } from '../../utils/encryption';
 import * as repository from '../users/users.repository';
-import DatabaseError from '../../utils/errorTypes/database';
 import * as validator from './auth.validator';
 
 import BaseResponse from '../../utils/response';
+
+import * as Constants from '../../utils/constants';
+
+import expressValidator from '../../middlewares/ExpressValidator';
 
 require('dotenv').config();
 
@@ -91,22 +93,21 @@ const routes = Router();
 routes.post(
   '/login',
   validator.authenticate,
+  expressValidator,
   async (req: Request, res: Response): Promise<unknown> => {
     const { username, password } = req.body;
 
-    const errors = validationResult(req);
-
-    if (!errors.isEmpty()) {
-      return BaseResponse.error(res, { errors: errors.array() });
-    }
-
     try {
       const user = await repository.getUserByUsername(username);
+      const genericError = 'Password or username are wrong!';
 
       if (user) {
         if (user.role < 2) {
-          res.status(401).json({ error: 'user has no privilleges' });
-        } else if (verifyPassword(password, user.password)) {
+          return BaseResponse.unauthorized(res, {
+            error: 'The user has no privilleges to access this feature.',
+          });
+        }
+        if (verifyPassword(password, user.password)) {
           const accessToken = jwt.sign(
             { userId: user.id },
             process.env.SECRET_KEY || '',
@@ -115,19 +116,21 @@ routes.post(
             },
           );
 
-          return BaseResponse.success(res, { accessToken });
+          BaseResponse.success(res, { accessToken });
         } else {
-          return BaseResponse.unauthorized(res, {
-            error: 'invalid grand: bad credentials',
+          BaseResponse.unauthorized(res, {
+            error: genericError,
           });
         }
       } else {
-        return BaseResponse.error(res, {
-          error: 'user not found',
+        BaseResponse.notFound(res, {
+          error: genericError,
         });
       }
     } catch (err) {
-      throw new DatabaseError('Failed to fetch data from the database.');
+      return BaseResponse.internalError(res, {
+        error: 'Something unexpected happened!',
+      });
     }
   },
 );
@@ -205,21 +208,22 @@ routes.post(
         process.env.SECRET_KEY || '',
         async (err: unknown, payload: any) => {
           if (err) {
-            return BaseResponse.unauthorized(response, {
-              error: 'Invalid token.',
+            return BaseResponse.error(response, {
+              error: 'Invalid or expired token.',
             });
           }
           const user = await repository.getUserById(payload.userId);
 
           if (user) {
-            const hasPermission = user.role >= 2;
-            BaseResponse.success(response, { hasPermission });
+            BaseResponse.success(response, {
+              role: Constants.getRole(user.role),
+            });
           }
           return false;
         },
       );
     } catch (err) {
-      BaseResponse.error(response, { error: 'Something unexpected happened' });
+      BaseResponse.internalError(response);
     }
   },
 );

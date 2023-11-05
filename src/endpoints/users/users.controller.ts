@@ -1,13 +1,14 @@
 /* eslint-disable consistent-return */
 import { Router, Response, Request } from 'express';
 import { DeepPartial } from 'typeorm';
-import { validationResult } from 'express-validator';
 import User from '../../models/User';
 import JwtWebToken from '../../middlewares/JwtWebToken';
 import * as repository from './users.repository';
 import * as validator from './users.validator';
 
 import BaseResponse from '../../utils/response';
+
+import expressValidator from '../../middlewares/ExpressValidator';
 
 const routes = Router();
 
@@ -87,13 +88,8 @@ routes.get('/', (request: Request, response: Response) => {
 routes.post(
   '/',
   validator.createUser,
+  expressValidator,
   async (request: Request, response: Response): Promise<unknown> => {
-    const errors = validationResult(request);
-
-    if (!errors.isEmpty()) {
-      return BaseResponse.error(response, { errors: errors.array() });
-    }
-
     const { username, password } = request.body;
 
     const user: DeepPartial<User> = {

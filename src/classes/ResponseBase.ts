@@ -8,28 +8,34 @@ export default abstract class ResponseBase {
    * Sends a status 200 response with a body
    *
    * @param { Response } response The response
-   * @param { IDataParams | string | DeepPartial<unknown> | any } data The response data
+   * @param { IDataParams | string | DeepPartial<unknown> | any | undefined } data The response data
    */
   abstract success(
     response: Response,
-    data: IDataParams | string | DeepPartial<unknown> | any,
+    data?: IDataParams | string | DeepPartial<unknown> | any | undefined,
   ): void;
 
   /**
    * Sends a status 400 response with a body
    *
    * @param { Response } response The response
-   * @param { IDataParams | string | DeepPartial<unknown> | any } data The response data
+   * @param { IDataParams | string | DeepPartial<unknown> | any | undefined } data The response data
    */
-  abstract error(response: Response, data: IDataParams | string | any): void;
+  abstract error(
+    response: Response,
+    data?: IDataParams | string | any | undefined,
+  ): void;
 
   /**
    * Sends a status 404 response with a body
    *
    * @param { Response } response The response
-   * @param { IDataParams | string | DeepPartial<unknown> | any } data The response data
+   * @param { IDataParams | string | DeepPartial<unknown> | any | undefined } data The response data
    */
-  abstract notFound(response: Response, data: IDataParams | string | any): void;
+  abstract notFound(
+    response: Response,
+    data?: IDataParams | string | any | undefined,
+  ): void;
 
   /**
    * Sends a status 400 response with a body
@@ -39,24 +45,24 @@ export default abstract class ResponseBase {
   abstract successEmpty(response: Response): void;
 
   /**
-   * Sends a status 500 response with a body
-   *
-   * @param { Response } response The response
-   * @param { IDataParams | string | DeepPartial<unknown> | any } data The response data
-   */
-  abstract internalError(
-    response: Response,
-    data: IDataParams | string | any,
-  ): void;
-
-  /**
    * Sends a status 401 response with a body
    *
    * @param { Response } response The response
-   * @param { IDataParams | string | DeepPartial<unknown> | any } data The response data
+   * @param { IDataParams | string | DeepPartial<unknown> | any | undefined } data The response data
    */
   abstract unauthorized(
     response: Response,
-    data: IDataParams | string | any,
+    data?: IDataParams | string | any | undefined,
+  ): void;
+
+  /**
+   * Sends a status 500 response with a body
+   *
+   * @param { Response } response The response
+   * @param { IDataParams | string | DeepPartial<unknown> | any | undefined } data The response data
+   */
+  abstract internalError(
+    response: Response,
+    data?: IDataParams | string | any | undefined,
   ): void;
 }

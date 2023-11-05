@@ -1,5 +1,5 @@
 /* eslint-disable import/prefer-default-export */
-import { body } from 'express-validator';
+import { body, ValidationChain } from 'express-validator';
 import * as repository from './users.repository';
 
 /**
@@ -16,7 +16,10 @@ const isUsernameUnique = async (value: string): Promise<void> => {
   return Promise.resolve();
 };
 
-export const createUser = [
+/**
+ * Validation chain for INSERTING user
+ */
+export const createUser: ValidationChain[] = [
   body('username')
     .exists()
     .withMessage('Username is required.')
